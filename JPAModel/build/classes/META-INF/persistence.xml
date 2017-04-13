@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="2.1" xmlns="http://xmlns.jcp.org/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd">
+	<persistence-unit name="JPAModel">
+		<jta-data-source>java:jboss/jdbc/mysql_karat</jta-data-source>
+		<class>com.karat.jpamodel.Category</class>
+		<class>com.karat.jpamodel.PricePolicy</class>
+		<class>com.karat.jpamodel.Product</class>
+		<class>com.karat.jpamodel.Role</class>
+		<class>com.karat.jpamodel.User</class>
+	</persistence-unit>
+</persistence>
