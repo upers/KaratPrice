@@ -16,6 +16,7 @@ import javax.persistence.PersistenceContext;
 import org.jboss.logging.Logger;
 
 import com.karat.excel.ImportProductPriceExcel;
+import com.karat.jpamodel.Category;
 import com.karat.jpamodel.PricePolicy;
 import com.karat.jpamodel.Product;
 
@@ -28,38 +29,54 @@ public class ExcelController {
 	private static final Logger log = Logger.getLogger(ExcelController.class);
 	@PersistenceContext(unitName = "JPAModel")
 	private EntityManager em;
-	
-	private static final String productSheetName = "product";
-	private static final Integer productSheetIndex = 0;
-	private static final Integer productPriceColumnIndex = 0;
-	private static final Integer productCodeColumnIndex = 1;
 
-    /**
-     * Default constructor. 
-     */
-    public ExcelController() {
-        // TODO Auto-generated constructor stub
-    }
+	/**
+	 * Default constructor.
+	 */
+	public ExcelController() {
+		// TODO Auto-generated constructor stub
+	}
 
 	@Asynchronous
 	public Future<Boolean> updateProductsPrice(File excelFile) {
 		ImportProductPriceExcel imExcel = new ImportProductPriceExcel(excelFile);
-		Map<Integer, Double> productsPrice = imExcel.getProductPrice(productSheetName, productCodeColumnIndex, productPriceColumnIndex);
-		for (Integer key : productsPrice.keySet()) {
-			log.info(key + "     " + productsPrice.get(key) + "<<<<<<<<<<<");
-		}
-		List<Product> products = em.createNamedQuery("Product.findByIdCodes", Product.class)
-			.setParameter("codes", productsPrice.keySet())
-			.getResultList();
-		
+		List<Product> products = imExcel.parceProducts();
+		log.info("--------------Start update the products from excel file--------------------");
 		for (Product p : products) {
-			log.info(p.getName() + "-=-=-=-=-=-=-=-=");
-			Double price = productsPrice.get(p.getCode());
-			if (price != null)
-				p.setPrice(price);
+			Double price = p.getPrice();
+			if (price != null && price != 0.0)
+				continue;
+
+			String code = p.getCode();
+			Product dbProd = em.createNamedQuery("Product.findByIdCode", Product.class).setParameter("code", code)
+					.getSingleResult();
+			if (dbProd != null) {
+				if (price != null && price != 0.0)
+					dbProd.setPrice(price);
+				
+				log.info("Updated product with name: " + p.getName());
+			} else {
+				String categName = p.getCategoryName();
+				Category category = em.createNamedQuery("Category.findById", Category.class).setParameter("name", categName)
+						.getSingleResult();
+				if (category != null) {
+					p.setCategory(category);
+					em.merge(p);
+					log.info("Created new product with name: " + p.getName() + "  added it self in category with name: " + categName);
+				} else {
+					category = new Category();
+					category.setName(categName);
+					category.addProduct(p);
+					
+					em.merge(category);
+					log.info("Created new category with name: " + categName + "  added product in it self with name: " + p.getName());
+				}
+			}
 		}
-		
+
 		excelFile.delete();
+		
+		log.info("--------------Completed the update products from excel file--------------------");
 		return new AsyncResult<>(true);
 	}
 
