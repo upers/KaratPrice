@@ -15,7 +15,8 @@ import java.util.List;
 		@NamedQuery(name="Category.findAll", query="SELECT c FROM Category c"),
 		@NamedQuery(name="Category.findAllMainCategories", query="SELECT c FROM Category c WHERE c.parentId is null"),
 		@NamedQuery(name="Category.findByParentId", query="SELECT c FROM Category c WHERE c.parentId = :id"),
-		@NamedQuery(name="Category.findById", query="SELECT c FROM Category c WHERE c.id = :id")
+		@NamedQuery(name="Category.findById", query="SELECT c FROM Category c WHERE c.id = :id"),
+		@NamedQuery(name="Category.findByName", query="SELECT c FROM Category c WHERE c.name = :name")
 })
 public class Category implements Serializable {
 	private static final long serialVersionUID = 1L;

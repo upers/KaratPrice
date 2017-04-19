@@ -15,6 +15,7 @@ import java.util.List;
 		@NamedQuery(name="Product.findAll", query="SELECT p FROM Product p"),
 		@NamedQuery(name="Product.findByCategoryId", query="SELECT p FROM Product p WHERE p.category.id = :id"),
 		@NamedQuery(name="Product.findById", query="SELECT p FROM Product p WHERE p.id = :id"),
+		@NamedQuery(name="Product.findByIdCode", query="SELECT p FROM Product p WHERE p.code = :code"),
 		@NamedQuery(name="Product.findByIdCodes", query="SELECT p FROM Product p WHERE p.code in :codes")
 })
 public class Product implements Serializable {
